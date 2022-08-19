@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>キャラクター作成</title>
+    <link type="text/css" rel="stylesheet" href="./css/twinbee.css" />
+  </head>
+  <body>
+    <div class="total">
+      <div class="bullet"></div>
+      <div class="leftArm"></div>
+      <div class="rightArm"></div>
+      <div class="leftHand"></div>
+      <div class="rightHand"></div>
+      <div class="body">
+        <div class="eye"></div>
+        <div class="leftLeg"></div>
+        <div class="tail"></div>
+        <div class="rightLeg"></div>
+      </div>
+    </div>
+    <div class="boss">
+      <div class="item1"></div>
+      <div class="item2"></div>
+      <div class="item3"></div>
+      <div class="item4"></div>
+      <div class="item5"></div>
+      <div class="item6"></div>
+    </div>
+    <div class="field"></div>
+    <script type="module">
+      import { Twinbee } from "./class/twinbee.js";
+      import { Key } from "./class/key.js";
+      import { Bullet } from "./class/bullet.js";
+      import { CollisionDetection } from "./class/collisionDetection.js";
+      import { Enemy } from "./class/enemy.js";
+
+      // ### 変数定義 ###
+      const charElement = document.getElementsByClassName("total")[0];
+      const bulletElement = document.getElementsByClassName("bullet")[0];
+      const fieldElement = document.getElementsByClassName("field")[0];
+      const bossElement = document.getElementsByClassName("boss")[0];
+      const item1Element = document.getElementsByClassName("item1")[0];
+      const item2Element = document.getElementsByClassName("item2")[0];
+      const item3Element = document.getElementsByClassName("item3")[0];
+      const item4Element = document.getElementsByClassName("item4")[0];
+      const item5Element = document.getElementsByClassName("item5")[0];
+      const item6Element = document.getElementsByClassName("item6")[0];
+      let isAttack = 0;
+      // フィールド内の移動できる範囲設定
+      // 値が大きいほど、より内側しか動けなくなる
+      const bottomAndRightMargin = 85;
+      const topAndLeftMargin = 30;
+      // ボスの行動パターン
+      let bossActionPattern = 0;
+      let beforeBossActionPattern = 0;
+      // ボスが移動中かどうか判定
+      let isBossMoving = false;
+      // ある時点でのツインビーの位置
+      let oneTimeTwinbeePositionX = 0;
+      let oneTimeTwinbeePositiony = 0;
+
+      // ### インスタンス生成 ###
+      const twinbee = new Twinbee();
+      const key = new Key();
+      const bullet = new Bullet();
+      const boss = new Enemy(40, 30, 1);
+      const item1 = new Enemy(20, 0, 1);
+      const item2 = new Enemy(20, 0, 1);
+      const item3 = new Enemy(20, 0, 1);
+      const item4 = new Enemy(20, 0, 1);
+      const item5 = new Enemy(20, 0, 1);
+      const item6 = new Enemy(20, 0, 1);
+      const collisionBullet = new CollisionDetection(
+        bulletElement.clientWidth / 2
+      );
+      const collisionBoss = new CollisionDetection(bossElement.clientWidth / 2);
+      const collisionTwinbee = new CollisionDetection(
+        charElement.clientWidth / 2
+      );
+      const collisionItem1 = new CollisionDetection(
+        item1Element.clientWidth / 2
+      );
+      const collisionItem2 = new CollisionDetection(
+        item2Element.clientWidth / 2
+      );
+      const collisionItem3 = new CollisionDetection(
+        item3Element.clientWidth / 2
+      );
+      const collisionItem4 = new CollisionDetection(
+        item4Element.clientWidth / 2
+      );
+      const collisionItem5 = new CollisionDetection(
+        item5Element.clientWidth / 2
+      );
+      const collisionItem6 = new CollisionDetection(
+        item6Element.clientWidth / 2
+      );
+
+      // ### キー押下処理 ###
+      document.addEventListener("keydown", (e) => {
+        // 左右キー押下時処理
+        if (key.isMoveX(e.key)) {
+          twinbee.setDirectionX(key.whichMoveX(e.key));
+        }
+        // 上下キー押下時処理
+        if (key.isMoveY(e.key)) {
+          twinbee.setDirectionY(key.whichMoveY(e.key));
+        }
+        // a(攻撃)キー押下時処理
+        if (key.isAttack(e.key)) {
+          Object.assign(bulletElement.style, {
+            display: "",
+          });
+          isAttack = 1;
+        }
+      });
+
+      // ### キー離した処理 ###
+      document.addEventListener("keyup", (e) => {
+        // 左右キー離したとき処理
+        if (twinbee.getDirectionX() === key.whichMoveX(e.key)) {
+          twinbee.setDirectionX(0);
+        }
+        // 上下キー離したとき処理
+        if (twinbee.getDirectionY() === key.whichMoveY(e.key)) {
+          twinbee.setDirectionY(0);
+        }
+        // a(攻撃)キー離したとき処理
+        if (key.isAttack(e.key)) {
+          // 指定時間の間実行し続ける？
+          // setTimeout(hoge, 3000);
+          Object.assign(bulletElement.style, {
+            display: "none",
+          });
+          isAttack = 0;
+        }
+      });
+
+      // ### ツインビー移動の処理 ###
+      (function twinbeeMoveAnimation() {
+        // スクロールしない範囲での移動に限定させる
+        // 後々は移動できる範囲をボックス内に限定させる
+        if (
+          canMove(
+            twinbee.getPositionX(),
+            twinbee.getPositionY(),
+            twinbee.getDirectionX(),
+            twinbee.getDirectionY()
+          )
+        ) {
+          // 左右移動
+          twinbee.setPositionX(
+            twinbee.getPositionX() +
+              twinbee.getDirectionX() * twinbee.getMoveSpeed()
+          );
+          // 上下移動
+          twinbee.setPositionY(
+            twinbee.getPositionY() +
+              twinbee.getDirectionY() * twinbee.getMoveSpeed()
+          );
+        }
+
+        Object.assign(charElement.style, {
+          left: `${twinbee.getPositionX()}px`,
+          top: `${twinbee.getPositionY()}px`,
+        });
+        requestAnimationFrame(twinbeeMoveAnimation);
+      })();
+
+      // ### フィールド内のみの移動判定 ###
+      function canMove(positionX, positionY, directionX, directionY) {
+        const fieldCoordinate = fieldElement.getBoundingClientRect();
+
+        // 画面下に来た時に、下方向以外には動ける
+        if (
+          positionY + bottomAndRightMargin > fieldCoordinate.bottom &&
+          directionY === 1
+        )
+          return false;
+        // 画面上に来た時に、上方向以外には動ける
+        if (
+          positionY - topAndLeftMargin < fieldCoordinate.top &&
+          directionY === -1
+        )
+          return false;
+        // 画面右に来た時に、右方向以外には動ける
+        if (
+          positionX + bottomAndRightMargin > fieldCoordinate.right &&
+          directionX === 1
+        )
+          return false;
+        // 画面左に来た時に、左方向以外には動ける
+        if (
+          positionX - topAndLeftMargin < fieldCoordinate.left &&
+          directionX === -1
+        )
+          return false;
+
+        return true;
+      }
+
+      // ### 弾の移動処理 ###
+      (function bulletMoveAnimation() {
+        bullet.setPosition(
+          bullet.getPosition() +
+            bullet.getDirection() * bullet.getSpeed() * isAttack
+        );
+        attackFinish();
+
+        Object.assign(bulletElement.style, {
+          top: `${bullet.getPosition()}px`,
+        });
+
+        requestAnimationFrame(bulletMoveAnimation);
+      })();
+
+      // 弾のループ用処理
+      function attackFinish() {
+        if (parseInt(bulletElement.style.top) < -1000) {
+          bullet.setPosition(0);
+        }
+      }
+
+      // ### 敵を対象とした当たり判定を常時計算 ###
+      (function hit() {
+        // 当たり判定算出対象の座標を再計算
+        const localBulletElement = document.getElementsByClassName("bullet")[0];
+        const localBossElement = document.getElementsByClassName("boss")[0];
+        const localCharactorElement =
+          document.getElementsByClassName("total")[0];
+        const localItem1Element = document.getElementsByClassName("item1")[0];
+        const localItem2Element = document.getElementsByClassName("item2")[0];
+        const localItem3Element = document.getElementsByClassName("item3")[0];
+        const localItem4Element = document.getElementsByClassName("item4")[0];
+        const localItem5Element = document.getElementsByClassName("item5")[0];
+        const localItem6Element = document.getElementsByClassName("item6")[0];
+
+        // 弾の中心座標を算出、設定
+        const bulletCoordinate = localBulletElement.getBoundingClientRect();
+        collisionBullet.setCenterX(
+          calcCenter(bulletCoordinate.right, bulletCoordinate.left)
+        );
+        collisionBullet.setCenterY(
+          calcCenter(bulletCoordinate.bottom, bulletCoordinate.top)
+        );
+
+        // ボスの中心座標を算出、設定
+        const bossCoordinate = localBossElement.getBoundingClientRect();
+        collisionBoss.setCenterX(
+          calcCenter(bossCoordinate.right, bossCoordinate.left)
+        );
+        collisionBoss.setCenterY(
+          calcCenter(bossCoordinate.bottom, bossCoordinate.top)
+        );
+
+        // ツインビーの中心座標を算出、設定
+        const twinbeeCoordinate = localCharactorElement.getBoundingClientRect();
+        collisionTwinbee.setCenterX(
+          calcCenter(twinbeeCoordinate.right, twinbeeCoordinate.left)
+        );
+        collisionTwinbee.setCenterY(
+          calcCenter(twinbeeCoordinate.bottom, twinbeeCoordinate.top)
+        );
+
+        // 周りの弾の中心座標を算出、設定
+        const item1Coordinate = localItem1Element.getBoundingClientRect();
+        collisionItem1.setCenterX(
+          calcCenter(item1Coordinate.right, item1Coordinate.left)
+        );
+        collisionItem1.setCenterY(
+          calcCenter(item1Coordinate.bottom, item1Coordinate.top)
+        );
+        const item2Coordinate = localItem2Element.getBoundingClientRect();
+        collisionItem2.setCenterX(
+          calcCenter(item2Coordinate.right, item2Coordinate.left)
+        );
+        collisionItem2.setCenterY(
+          calcCenter(item2Coordinate.bottom, item2Coordinate.top)
+        );
+        const item3Coordinate = localItem3Element.getBoundingClientRect();
+        collisionItem3.setCenterX(
+          calcCenter(item3Coordinate.right, item3Coordinate.left)
+        );
+        collisionItem3.setCenterY(
+          calcCenter(item3Coordinate.bottom, item3Coordinate.top)
+        );
+        const item4Coordinate = localItem4Element.getBoundingClientRect();
+        collisionItem4.setCenterX(
+          calcCenter(item4Coordinate.right, item4Coordinate.left)
+        );
+        collisionItem4.setCenterY(
+          calcCenter(item4Coordinate.bottom, item4Coordinate.top)
+        );
+        const item5Coordinate = localItem5Element.getBoundingClientRect();
+        collisionItem5.setCenterX(
+          calcCenter(item5Coordinate.right, item5Coordinate.left)
+        );
+        collisionItem5.setCenterY(
+          calcCenter(item5Coordinate.bottom, item5Coordinate.top)
+        );
+        const item6Coordinate = localItem6Element.getBoundingClientRect();
+        collisionItem6.setCenterX(
+          calcCenter(item6Coordinate.right, item6Coordinate.left)
+        );
+        collisionItem6.setCenterY(
+          calcCenter(item6Coordinate.bottom, item6Coordinate.top)
+        );
+
+        // 弾がボスに当たった時の処理
+        if (collisionBoss.isHit(collisionBullet, collisionBoss)) {
+          bullet.setPosition(0);
+          boss.setHealth(boss.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (boss.getHealth() <= 0) {
+            Object.assign(bossElement.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+
+        // 弾がボスの周りの玉に当たった時の処理
+        if (collisionItem1.isHit(collisionBullet, collisionItem1)) {
+          bullet.setPosition(0);
+          item1.setHealth(item1.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item1.getHealth() <= 0) {
+            Object.assign(item1Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+        if (collisionItem2.isHit(collisionBullet, collisionItem2)) {
+          bullet.setPosition(0);
+          item2.setHealth(item2.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item2.getHealth() <= 0) {
+            Object.assign(item2Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+        if (collisionItem3.isHit(collisionBullet, collisionItem3)) {
+          bullet.setPosition(0);
+          item3.setHealth(item3.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item3.getHealth() <= 0) {
+            Object.assign(item3Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+        if (collisionItem4.isHit(collisionBullet, collisionItem4)) {
+          bullet.setPosition(0);
+          item4.setHealth(item4.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item4.getHealth() <= 0) {
+            Object.assign(item4Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+        if (collisionItem5.isHit(collisionBullet, collisionItem5)) {
+          bullet.setPosition(0);
+          item5.setHealth(item5.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item5.getHealth() <= 0) {
+            Object.assign(item5Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+        if (collisionItem6.isHit(collisionBullet, collisionItem6)) {
+          bullet.setPosition(0);
+          item6.setHealth(item6.getHealth() - bullet.getDamage());
+          console.log("あたった");
+          if (item6.getHealth() <= 0) {
+            Object.assign(item6Element.style, {
+              display: "none",
+            });
+            console.log("倒した");
+          }
+        }
+
+        // ボスがツインビーに当たった時の処理
+        if (collisionTwinbee.isHit(collisionTwinbee, collisionBoss)) {
+          twinbee.setHealth(twinbee.getHealth() - boss.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+
+        // ボスの周りの玉がツインビーに当たった時の処理
+        if (collisionItem1.isHit(collisionTwinbee, collisionItem1)) {
+          twinbee.setHealth(twinbee.getHealth() - item1.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+        if (collisionItem2.isHit(collisionTwinbee, collisionItem2)) {
+          twinbee.setHealth(twinbee.getHealth() - item2.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+        if (collisionItem3.isHit(collisionTwinbee, collisionItem3)) {
+          twinbee.setHealth(twinbee.getHealth() - item3.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+        if (collisionItem4.isHit(collisionTwinbee, collisionItem4)) {
+          twinbee.setHealth(twinbee.getHealth() - item4.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+        if (collisionItem5.isHit(collisionTwinbee, collisionItem5)) {
+          twinbee.setHealth(twinbee.getHealth() - item5.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+        if (collisionItem6.isHit(collisionTwinbee, collisionItem6)) {
+          twinbee.setHealth(twinbee.getHealth() - item6.getDamage());
+          console.log("当てられた");
+          if (twinbee.getHealth() <= 0) {
+            Object.assign(charElement.style, {
+              display: "none",
+            });
+            console.log("死んだ");
+          }
+        }
+
+        requestAnimationFrame(hit);
+      })();
+
+      // getBoundingClientRect()によって取得した情報をもとに中心位置を算出
+      function calcCenter(longSide, shortSide) {
+        return shortSide + (longSide - shortSide) / 2;
+      }
+
+      // ### ボスの移動処理 ###
+      (function bossMoveAnimation() {
+        if (
+          canMove(
+            boss.getPositionX(),
+            boss.getPositionY(),
+            boss.getDirectionX(),
+            boss.getDirectionY()
+          ) &&
+          isBossMoving
+        ) {
+          // javascriptで動きを組むのはナンセンスだから、アニメーションを利用する
+          // ※端の判定をどうするのか考える必要がありそう
+          switch (bossActionPattern) {
+            case 0:
+              // 元々いた座標に戻るように実装した方がよさそう
+              // 作った線形移動の関数を使った方がよさそう
+              boss.setPositionX(
+                boss.getPositionX() + boss.getDirectionX() * boss.getMoveSpeed()
+              );
+              boss.setPositionY(
+                boss.getPositionY() + boss.getDirectionY() * boss.getMoveSpeed()
+              );
+              Object.assign(bossElement.style, {
+                letf: `${boss.getPositionX()}px`,
+                top: `${boss.getPositionY()}px`,
+              });
+              break;
+            case 1:
+              // 下方向への直線移動
+              boss.setDirectionX(0);
+              boss.setDirectionY(1);
+              // マージンを取る必要がある
+              boss.setPositionY(
+                boss.getPositionY() + boss.getDirectionY() * boss.getMoveSpeed()
+              );
+              Object.assign(bossElement.style, {
+                top: `${boss.getPositionY()}px`,
+              });
+              break;
+            case 2:
+              // この処理、一部だけ戻らなくても面白いかも
+              Object.assign(item1Element.style, {
+                animation: "circle-move-spread-anim1 3s linear infinite",
+              });
+              Object.assign(item2Element.style, {
+                animation: "circle-move-spread-anim2 3s linear infinite",
+              });
+              Object.assign(item3Element.style, {
+                animation: "circle-move-spread-anim3 3s linear infinite",
+              });
+              Object.assign(item4Element.style, {
+                animation: "circle-move-spread-anim4 3s linear infinite",
+              });
+              Object.assign(item5Element.style, {
+                animation: "circle-move-spread-anim5 3s linear infinite",
+              });
+              Object.assign(item6Element.style, {
+                animation: "circle-move-spread-anim6 3s linear infinite",
+              });
+              break;
+          }
+        } else {
+          isBossMoving = false;
+        }
+        requestAnimationFrame(bossMoveAnimation);
+      })();
+
+      window.addEventListener("DOMContentLoaded", () => {
+        if (!isBossMoving) {
+          // 3秒ごとに実行
+          setInterval(() => {
+            // 元の位置に戻るために方向を反転させる
+            boss.setDirectionX(-boss.getDirectionX());
+            boss.setDirectionY(-boss.getDirectionY());
+
+            // 周りの玉が回るアニメーションを元に戻す
+            Object.assign(item1Element.style, {
+              animation: "circle-move-anim1 4s linear infinite",
+            });
+            Object.assign(item2Element.style, {
+              animation: "circle-move-anim2 4s linear infinite",
+            });
+            Object.assign(item3Element.style, {
+              animation: "circle-move-anim3 4s linear infinite",
+            });
+            Object.assign(item4Element.style, {
+              animation: "circle-move-anim4 4s linear infinite",
+            });
+            Object.assign(item5Element.style, {
+              animation: "circle-move-anim5 4s linear infinite",
+            });
+            Object.assign(item6Element.style, {
+              animation: "circle-move-anim6 4s linear infinite",
+            });
+
+            // ボスの行動パターンを設定
+            beforeBossActionPattern = bossActionPattern;
+            bossActionPattern = 0;
+            if (beforeBossActionPattern === 0)
+              bossActionPattern = Math.ceil(Math.random() * 2);
+            isBossMoving = true;
+            console.log(bossActionPattern);
+          }, 4000);
+        }
+      });
+    </script>
+  </body>
+</html>
