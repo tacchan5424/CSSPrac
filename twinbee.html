@@ -56,11 +56,9 @@
       let beforeBossActionPattern = 0;
       // ボスが移動中かどうか判定
       let isBossMoving = false;
-      // ある時点でのツインビーの位置
-      let oneTimeTwinbeePositionX = 0;
-      let oneTimeTwinbeePositiony = 0;
 
       // ### インスタンス生成 ###
+      // 各キャラクターインスタンス
       const twinbee = new Twinbee();
       const key = new Key();
       const bullet = new Bullet();
@@ -71,6 +69,7 @@
       const item4 = new Enemy(20, 0, 1);
       const item5 = new Enemy(20, 0, 1);
       const item6 = new Enemy(20, 0, 1);
+      // 当たり判定用インスタンス
       const collisionBullet = new CollisionDetection(
         bulletElement.clientWidth / 2
       );
@@ -128,8 +127,6 @@
         }
         // a(攻撃)キー離したとき処理
         if (key.isAttack(e.key)) {
-          // 指定時間の間実行し続ける？
-          // setTimeout(hoge, 3000);
           Object.assign(bulletElement.style, {
             display: "none",
           });
@@ -481,8 +478,6 @@
           ) &&
           isBossMoving
         ) {
-          // javascriptで動きを組むのはナンセンスだから、アニメーションを利用する
-          // ※端の判定をどうするのか考える必要がありそう
           switch (bossActionPattern) {
             case 0:
               // 元々いた座標に戻るように実装した方がよさそう
@@ -511,7 +506,6 @@
               });
               break;
             case 2:
-              // この処理、一部だけ戻らなくても面白いかも
               Object.assign(item1Element.style, {
                 animation: "circle-move-spread-anim1 3s linear infinite",
               });
@@ -573,7 +567,7 @@
               bossActionPattern = Math.ceil(Math.random() * 2);
             isBossMoving = true;
             console.log(bossActionPattern);
-          }, 4000);
+          }, 3000);
         }
       });
     </script>
