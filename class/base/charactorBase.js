@@ -55,4 +55,50 @@ export class CharactorBase {
   setHealth(h) {
     this._health = h;
   }
+
+  // 以下リファクタリング中
+  initDirectionX() {
+    this._directionX = 0;
+  }
+  initDirectionY() {
+    this._directionY = 0;
+  }
+
+  /**
+   *
+   * @param {*} fieldCoordinate
+   * @param {*} topMargin
+   * @param {*} bottomMargin
+   * @param {*} leftMargin
+   * @param {*} rightMargin
+   * @returns
+   */
+  canMove(fieldCoordinate, topMargin, bottomMargin, leftMargin, rightMargin) {
+    // 画面上に来た時に、上方向以外には動ける
+    if (
+      this._positionY - topMargin < fieldCoordinate.top &&
+      this._directionY === -1
+    )
+      return false;
+    // 画面下に来た時に、下方向以外には動ける
+    if (
+      this._positionY + bottomMargin > fieldCoordinate.bottom &&
+      this._directionY === 1
+    )
+      return false;
+    // 画面左に来た時に、左方向以外には動ける
+    if (
+      this._positionX - leftMargin < fieldCoordinate.left &&
+      this._directionX === -1
+    )
+      return false;
+    // 画面右に来た時に、右方向以外には動ける
+    if (
+      this._positionX + rightMargin > fieldCoordinate.right &&
+      this._directionX === 1
+    )
+      return false;
+
+    return true;
+  }
 }

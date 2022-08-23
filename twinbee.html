@@ -46,11 +46,15 @@
       const item4Element = document.getElementsByClassName("item4")[0];
       const item5Element = document.getElementsByClassName("item5")[0];
       const item6Element = document.getElementsByClassName("item6")[0];
+      // 移動判定用のフィールド座標系
+      const fieldCoordinate = fieldElement.getBoundingClientRect();
       let isAttack = 0;
       // フィールド内の移動できる範囲設定
       // 値が大きいほど、より内側しか動けなくなる
-      const bottomAndRightMargin = 85;
-      const topAndLeftMargin = 30;
+      const topMargin = 30;
+      const bottomMargin = 85;
+      const leftMargin = 30;
+      const rightMargin = 85;
       // ボスの行動パターン
       let bossActionPattern = 0;
       let beforeBossActionPattern = 0;
@@ -119,11 +123,11 @@
       document.addEventListener("keyup", (e) => {
         // 左右キー離したとき処理
         if (twinbee.getDirectionX() === key.whichMoveX(e.key)) {
-          twinbee.setDirectionX(0);
+          twinbee.initDirectionX();
         }
         // 上下キー離したとき処理
         if (twinbee.getDirectionY() === key.whichMoveY(e.key)) {
-          twinbee.setDirectionY(0);
+          twinbee.initDirectionY();
         }
         // a(攻撃)キー離したとき処理
         if (key.isAttack(e.key)) {
@@ -139,11 +143,12 @@
         // スクロールしない範囲での移動に限定させる
         // 後々は移動できる範囲をボックス内に限定させる
         if (
-          canMove(
-            twinbee.getPositionX(),
-            twinbee.getPositionY(),
-            twinbee.getDirectionX(),
-            twinbee.getDirectionY()
+          twinbee.canMove(
+            fieldCoordinate,
+            topMargin,
+            bottomMargin,
+            leftMargin,
+            rightMargin
           )
         ) {
           // 左右移動
@@ -164,38 +169,6 @@
         });
         requestAnimationFrame(twinbeeMoveAnimation);
       })();
-
-      // ### フィールド内のみの移動判定 ###
-      function canMove(positionX, positionY, directionX, directionY) {
-        const fieldCoordinate = fieldElement.getBoundingClientRect();
-
-        // 画面下に来た時に、下方向以外には動ける
-        if (
-          positionY + bottomAndRightMargin > fieldCoordinate.bottom &&
-          directionY === 1
-        )
-          return false;
-        // 画面上に来た時に、上方向以外には動ける
-        if (
-          positionY - topAndLeftMargin < fieldCoordinate.top &&
-          directionY === -1
-        )
-          return false;
-        // 画面右に来た時に、右方向以外には動ける
-        if (
-          positionX + bottomAndRightMargin > fieldCoordinate.right &&
-          directionX === 1
-        )
-          return false;
-        // 画面左に来た時に、左方向以外には動ける
-        if (
-          positionX - topAndLeftMargin < fieldCoordinate.left &&
-          directionX === -1
-        )
-          return false;
-
-        return true;
-      }
 
       // ### 弾の移動処理 ###
       (function bulletMoveAnimation() {
@@ -470,11 +443,12 @@
       // ### ボスの移動処理 ###
       (function bossMoveAnimation() {
         if (
-          canMove(
-            boss.getPositionX(),
-            boss.getPositionY(),
-            boss.getDirectionX(),
-            boss.getDirectionY()
+          boss.canMove(
+            fieldCoordinate,
+            topMargin,
+            bottomMargin,
+            leftMargin,
+            rightMargin
           ) &&
           isBossMoving
         ) {
