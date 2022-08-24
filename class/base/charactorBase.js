@@ -8,6 +8,10 @@ export class CharactorBase {
   _directionY;
   _moveSpeed;
   _health;
+  _topMargin;
+  _bottomMargin;
+  _leftMargin;
+  _rightMargin;
 
   constructor() {
     this._positionX = 0;
@@ -16,6 +20,10 @@ export class CharactorBase {
     this._directionY = 0;
     this._moveSpeed = 0;
     this._health = 0;
+    this._topMargin = 0;
+    this._bottomMargin = 0;
+    this._leftMargin = 0;
+    this._rightMargin = 0;
   }
 
   getPositionX() {
@@ -73,28 +81,28 @@ export class CharactorBase {
    * @param {*} rightMargin
    * @returns
    */
-  canMove(fieldCoordinate, topMargin, bottomMargin, leftMargin, rightMargin) {
+  canMove(fieldCoordinate) {
     // 画面上に来た時に、上方向以外には動ける
     if (
-      this._positionY - topMargin < fieldCoordinate.top &&
+      this._positionY - this._topMargin < fieldCoordinate.top &&
       this._directionY === -1
     )
       return false;
     // 画面下に来た時に、下方向以外には動ける
     if (
-      this._positionY + bottomMargin > fieldCoordinate.bottom &&
+      this._positionY + this._bottomMargin > fieldCoordinate.bottom &&
       this._directionY === 1
     )
       return false;
     // 画面左に来た時に、左方向以外には動ける
     if (
-      this._positionX - leftMargin < fieldCoordinate.left &&
+      this._positionX - this._leftMargin < fieldCoordinate.left &&
       this._directionX === -1
     )
       return false;
     // 画面右に来た時に、右方向以外には動ける
     if (
-      this._positionX + rightMargin > fieldCoordinate.right &&
+      this._positionX + this._rightMargin > fieldCoordinate.right &&
       this._directionX === 1
     )
       return false;

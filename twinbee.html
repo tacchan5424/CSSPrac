@@ -49,12 +49,6 @@
       // 移動判定用のフィールド座標系
       const fieldCoordinate = fieldElement.getBoundingClientRect();
       let isAttack = 0;
-      // フィールド内の移動できる範囲設定
-      // 値が大きいほど、より内側しか動けなくなる
-      const topMargin = 30;
-      const bottomMargin = 85;
-      const leftMargin = 30;
-      const rightMargin = 85;
       // ボスの行動パターン
       let bossActionPattern = 0;
       let beforeBossActionPattern = 0;
@@ -142,45 +136,17 @@
       (function twinbeeMoveAnimation() {
         // スクロールしない範囲での移動に限定させる
         // 後々は移動できる範囲をボックス内に限定させる
-        if (
-          twinbee.canMove(
-            fieldCoordinate,
-            topMargin,
-            bottomMargin,
-            leftMargin,
-            rightMargin
-          )
-        ) {
-          // 左右移動
-          twinbee.setPositionX(
-            twinbee.getPositionX() +
-              twinbee.getDirectionX() * twinbee.getMoveSpeed()
-          );
-          // 上下移動
-          twinbee.setPositionY(
-            twinbee.getPositionY() +
-              twinbee.getDirectionY() * twinbee.getMoveSpeed()
-          );
+        if (twinbee.canMove(fieldCoordinate)) {
+          twinbee.move(charElement);
         }
 
-        Object.assign(charElement.style, {
-          left: `${twinbee.getPositionX()}px`,
-          top: `${twinbee.getPositionY()}px`,
-        });
         requestAnimationFrame(twinbeeMoveAnimation);
       })();
 
       // ### 弾の移動処理 ###
       (function bulletMoveAnimation() {
-        bullet.setPosition(
-          bullet.getPosition() +
-            bullet.getDirection() * bullet.getSpeed() * isAttack
-        );
-        attackFinish();
-
-        Object.assign(bulletElement.style, {
-          top: `${bullet.getPosition()}px`,
-        });
+        bullet.move(bulletElement, isAttack);
+        bullet.initPosition(bulletElement);
 
         requestAnimationFrame(bulletMoveAnimation);
       })();
@@ -442,16 +408,7 @@
 
       // ### ボスの移動処理 ###
       (function bossMoveAnimation() {
-        if (
-          boss.canMove(
-            fieldCoordinate,
-            topMargin,
-            bottomMargin,
-            leftMargin,
-            rightMargin
-          ) &&
-          isBossMoving
-        ) {
+        if (boss.canMove(fieldCoordinate) && isBossMoving) {
           switch (bossActionPattern) {
             case 0:
               // 元々いた座標に戻るように実装した方がよさそう

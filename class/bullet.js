@@ -6,4 +6,17 @@ export class Bullet extends BulletBase {
     this._speed = 40;
     this._damage = 1;
   }
+
+  move(bulletElement, isAttack) {
+    this._position = this._position + this._direction * this._speed * isAttack;
+    Object.assign(bulletElement.style, {
+      top: `${this._position}px`,
+    });
+  }
+
+  initPosition(bulletElement) {
+    if (parseInt(bulletElement.style.top) < -1000) {
+      this._position = 0;
+    }
+  }
 }

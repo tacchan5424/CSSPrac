@@ -10,6 +10,10 @@ export class Enemy extends CharactorBase {
     super();
     this._health = h;
     this._moveSpeed = s;
+    this._topMargin = 30;
+    this._bottomMargin = 85;
+    this._leftMargin = 30;
+    this._rightMargin = 85;
     this.#damage = d;
   }
 
