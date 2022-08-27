@@ -14,9 +14,12 @@ export class Bullet extends BulletBase {
     });
   }
 
-  initPosition(bulletElement) {
+  initPositionWhenOverField(bulletElement) {
     if (parseInt(bulletElement.style.top) < -1000) {
       this._position = 0;
     }
+  }
+  initPosition() {
+    this._position = 0;
   }
 }

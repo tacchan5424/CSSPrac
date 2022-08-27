@@ -146,17 +146,10 @@
       // ### 弾の移動処理 ###
       (function bulletMoveAnimation() {
         bullet.move(bulletElement, isAttack);
-        bullet.initPosition(bulletElement);
+        bullet.initPositionWhenOverField(bulletElement);
 
         requestAnimationFrame(bulletMoveAnimation);
       })();
-
-      // 弾のループ用処理
-      function attackFinish() {
-        if (parseInt(bulletElement.style.top) < -1000) {
-          bullet.setPosition(0);
-        }
-      }
 
       // ### 敵を対象とした当たり判定を常時計算 ###
       (function hit() {
@@ -174,287 +167,148 @@
 
         // 弾の中心座標を算出、設定
         const bulletCoordinate = localBulletElement.getBoundingClientRect();
-        collisionBullet.setCenterX(
-          calcCenter(bulletCoordinate.right, bulletCoordinate.left)
-        );
-        collisionBullet.setCenterY(
-          calcCenter(bulletCoordinate.bottom, bulletCoordinate.top)
-        );
+        collisionBullet.calcCenter(bulletCoordinate);
 
         // ボスの中心座標を算出、設定
         const bossCoordinate = localBossElement.getBoundingClientRect();
-        collisionBoss.setCenterX(
-          calcCenter(bossCoordinate.right, bossCoordinate.left)
-        );
-        collisionBoss.setCenterY(
-          calcCenter(bossCoordinate.bottom, bossCoordinate.top)
-        );
+        collisionBoss.calcCenter(bossCoordinate);
 
         // ツインビーの中心座標を算出、設定
         const twinbeeCoordinate = localCharactorElement.getBoundingClientRect();
-        collisionTwinbee.setCenterX(
-          calcCenter(twinbeeCoordinate.right, twinbeeCoordinate.left)
-        );
-        collisionTwinbee.setCenterY(
-          calcCenter(twinbeeCoordinate.bottom, twinbeeCoordinate.top)
-        );
+        collisionTwinbee.calcCenter(twinbeeCoordinate);
 
         // 周りの弾の中心座標を算出、設定
         const item1Coordinate = localItem1Element.getBoundingClientRect();
-        collisionItem1.setCenterX(
-          calcCenter(item1Coordinate.right, item1Coordinate.left)
-        );
-        collisionItem1.setCenterY(
-          calcCenter(item1Coordinate.bottom, item1Coordinate.top)
-        );
+        collisionItem1.calcCenter(item1Coordinate);
+
         const item2Coordinate = localItem2Element.getBoundingClientRect();
-        collisionItem2.setCenterX(
-          calcCenter(item2Coordinate.right, item2Coordinate.left)
-        );
-        collisionItem2.setCenterY(
-          calcCenter(item2Coordinate.bottom, item2Coordinate.top)
-        );
+        collisionItem2.calcCenter(item2Coordinate);
+
         const item3Coordinate = localItem3Element.getBoundingClientRect();
-        collisionItem3.setCenterX(
-          calcCenter(item3Coordinate.right, item3Coordinate.left)
-        );
-        collisionItem3.setCenterY(
-          calcCenter(item3Coordinate.bottom, item3Coordinate.top)
-        );
+        collisionItem3.calcCenter(item3Coordinate);
+
         const item4Coordinate = localItem4Element.getBoundingClientRect();
-        collisionItem4.setCenterX(
-          calcCenter(item4Coordinate.right, item4Coordinate.left)
-        );
-        collisionItem4.setCenterY(
-          calcCenter(item4Coordinate.bottom, item4Coordinate.top)
-        );
+        collisionItem4.calcCenter(item4Coordinate);
+
         const item5Coordinate = localItem5Element.getBoundingClientRect();
-        collisionItem5.setCenterX(
-          calcCenter(item5Coordinate.right, item5Coordinate.left)
-        );
-        collisionItem5.setCenterY(
-          calcCenter(item5Coordinate.bottom, item5Coordinate.top)
-        );
+        collisionItem5.calcCenter(item5Coordinate);
         const item6Coordinate = localItem6Element.getBoundingClientRect();
-        collisionItem6.setCenterX(
-          calcCenter(item6Coordinate.right, item6Coordinate.left)
-        );
-        collisionItem6.setCenterY(
-          calcCenter(item6Coordinate.bottom, item6Coordinate.top)
-        );
+        collisionItem6.calcCenter(item6Coordinate);
 
         // 弾がボスに当たった時の処理
-        if (collisionBoss.isHit(collisionBullet, collisionBoss)) {
-          bullet.setPosition(0);
-          boss.setHealth(boss.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (boss.getHealth() <= 0) {
-            Object.assign(bossElement.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionBoss.isHit(collisionBullet)) {
+          bullet.initPosition();
+          boss.takeDamage(bullet.getDamage());
+          boss.isDead(bossElement);
         }
 
         // 弾がボスの周りの玉に当たった時の処理
-        if (collisionItem1.isHit(collisionBullet, collisionItem1)) {
-          bullet.setPosition(0);
-          item1.setHealth(item1.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item1.getHealth() <= 0) {
-            Object.assign(item1Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem1.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item1.takeDamage(bullet.getDamage());
+          item1.isDead(item1Element);
         }
-        if (collisionItem2.isHit(collisionBullet, collisionItem2)) {
-          bullet.setPosition(0);
-          item2.setHealth(item2.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item2.getHealth() <= 0) {
-            Object.assign(item2Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem2.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item2.takeDamage(bullet.getDamage());
+          item2.isDead(item2Element);
         }
-        if (collisionItem3.isHit(collisionBullet, collisionItem3)) {
-          bullet.setPosition(0);
-          item3.setHealth(item3.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item3.getHealth() <= 0) {
-            Object.assign(item3Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem3.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item2.takeDamage(bullet.getDamage());
+          item3.isDead(item3Element);
         }
-        if (collisionItem4.isHit(collisionBullet, collisionItem4)) {
-          bullet.setPosition(0);
-          item4.setHealth(item4.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item4.getHealth() <= 0) {
-            Object.assign(item4Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem4.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item4.takeDamage(bullet.getDamage());
+          item4.isDead(item4Element);
         }
-        if (collisionItem5.isHit(collisionBullet, collisionItem5)) {
-          bullet.setPosition(0);
-          item5.setHealth(item5.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item5.getHealth() <= 0) {
-            Object.assign(item5Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem5.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item4.takeDamage(bullet.getDamage());
+          item5.isDead(item5Element);
         }
-        if (collisionItem6.isHit(collisionBullet, collisionItem6)) {
-          bullet.setPosition(0);
-          item6.setHealth(item6.getHealth() - bullet.getDamage());
-          console.log("あたった");
-          if (item6.getHealth() <= 0) {
-            Object.assign(item6Element.style, {
-              display: "none",
-            });
-            console.log("倒した");
-          }
+        if (collisionItem6.isHit(collisionBullet)) {
+          bullet.initPosition();
+          item6.takeDamage(bullet.getDamage());
+          item6.isDead(item6Element);
         }
 
         // ボスがツインビーに当たった時の処理
-        if (collisionTwinbee.isHit(collisionTwinbee, collisionBoss)) {
-          twinbee.setHealth(twinbee.getHealth() - boss.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionTwinbee.isHit(collisionBoss)) {
+          twinbee.takeDamage(boss.getDamage());
+          twinbee.isDead(charElement);
         }
 
         // ボスの周りの玉がツインビーに当たった時の処理
-        if (collisionItem1.isHit(collisionTwinbee, collisionItem1)) {
-          twinbee.setHealth(twinbee.getHealth() - item1.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem1.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item1.getDamage());
+          twinbee.isDead(charElement);
         }
-        if (collisionItem2.isHit(collisionTwinbee, collisionItem2)) {
-          twinbee.setHealth(twinbee.getHealth() - item2.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem2.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item2.getDamage());
+          twinbee.isDead(charElement);
         }
-        if (collisionItem3.isHit(collisionTwinbee, collisionItem3)) {
-          twinbee.setHealth(twinbee.getHealth() - item3.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem3.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item3.getDamage());
+          twinbee.isDead(charElement);
         }
-        if (collisionItem4.isHit(collisionTwinbee, collisionItem4)) {
-          twinbee.setHealth(twinbee.getHealth() - item4.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem4.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item4.getDamage());
+          twinbee.isDead(charElement);
         }
-        if (collisionItem5.isHit(collisionTwinbee, collisionItem5)) {
-          twinbee.setHealth(twinbee.getHealth() - item5.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem5.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item5.getDamage());
+          twinbee.isDead(charElement);
         }
-        if (collisionItem6.isHit(collisionTwinbee, collisionItem6)) {
-          twinbee.setHealth(twinbee.getHealth() - item6.getDamage());
-          console.log("当てられた");
-          if (twinbee.getHealth() <= 0) {
-            Object.assign(charElement.style, {
-              display: "none",
-            });
-            console.log("死んだ");
-          }
+        if (collisionItem6.isHit(collisionTwinbee)) {
+          twinbee.takeDamage(item6.getDamage());
+          twinbee.isDead(charElement);
         }
 
         requestAnimationFrame(hit);
       })();
-
-      // getBoundingClientRect()によって取得した情報をもとに中心位置を算出
-      function calcCenter(longSide, shortSide) {
-        return shortSide + (longSide - shortSide) / 2;
-      }
 
       // ### ボスの移動処理 ###
       (function bossMoveAnimation() {
         if (boss.canMove(fieldCoordinate) && isBossMoving) {
           switch (bossActionPattern) {
             case 0:
-              // 元々いた座標に戻るように実装した方がよさそう
-              // 作った線形移動の関数を使った方がよさそう
-              boss.setPositionX(
-                boss.getPositionX() + boss.getDirectionX() * boss.getMoveSpeed()
-              );
-              boss.setPositionY(
-                boss.getPositionY() + boss.getDirectionY() * boss.getMoveSpeed()
-              );
-              Object.assign(bossElement.style, {
-                letf: `${boss.getPositionX()}px`,
-                top: `${boss.getPositionY()}px`,
-              });
+              // アニメーションで実装
+              boss.move(bossElement);
               break;
             case 1:
               // 下方向への直線移動
               boss.setDirectionX(0);
               boss.setDirectionY(1);
               // マージンを取る必要がある
-              boss.setPositionY(
-                boss.getPositionY() + boss.getDirectionY() * boss.getMoveSpeed()
-              );
-              Object.assign(bossElement.style, {
-                top: `${boss.getPositionY()}px`,
-              });
+              boss.move(bossElement);
               break;
             case 2:
-              Object.assign(item1Element.style, {
-                animation: "circle-move-spread-anim1 3s linear infinite",
-              });
-              Object.assign(item2Element.style, {
-                animation: "circle-move-spread-anim2 3s linear infinite",
-              });
-              Object.assign(item3Element.style, {
-                animation: "circle-move-spread-anim3 3s linear infinite",
-              });
-              Object.assign(item4Element.style, {
-                animation: "circle-move-spread-anim4 3s linear infinite",
-              });
-              Object.assign(item5Element.style, {
-                animation: "circle-move-spread-anim5 3s linear infinite",
-              });
-              Object.assign(item6Element.style, {
-                animation: "circle-move-spread-anim6 3s linear infinite",
-              });
+              item1.changeAnimation(
+                item1Element,
+                "circle-move-spread-anim1 3s linear infinite"
+              );
+              item2.changeAnimation(
+                item2Element,
+                "circle-move-spread-anim2 3s linear infinite"
+              );
+              item3.changeAnimation(
+                item3Element,
+                "circle-move-spread-anim3 3s linear infinite"
+              );
+              item4.changeAnimation(
+                item4Element,
+                "circle-move-spread-anim4 3s linear infinite"
+              );
+              item5.changeAnimation(
+                item5Element,
+                "circle-move-spread-anim5 3s linear infinite"
+              );
+              item6.changeAnimation(
+                item6Element,
+                "circle-move-spread-anim6 3s linear infinite"
+              );
               break;
           }
         } else {
@@ -468,28 +322,32 @@
           // 3秒ごとに実行
           setInterval(() => {
             // 元の位置に戻るために方向を反転させる
-            boss.setDirectionX(-boss.getDirectionX());
-            boss.setDirectionY(-boss.getDirectionY());
+            boss.reverseDierction();
 
-            // 周りの玉が回るアニメーションを元に戻す
-            Object.assign(item1Element.style, {
-              animation: "circle-move-anim1 4s linear infinite",
-            });
-            Object.assign(item2Element.style, {
-              animation: "circle-move-anim2 4s linear infinite",
-            });
-            Object.assign(item3Element.style, {
-              animation: "circle-move-anim3 4s linear infinite",
-            });
-            Object.assign(item4Element.style, {
-              animation: "circle-move-anim4 4s linear infinite",
-            });
-            Object.assign(item5Element.style, {
-              animation: "circle-move-anim5 4s linear infinite",
-            });
-            Object.assign(item6Element.style, {
-              animation: "circle-move-anim6 4s linear infinite",
-            });
+            item1.changeAnimation(
+              item1Element,
+              "circle-move-anim1 4s linear infinite"
+            );
+            item2.changeAnimation(
+              item2Element,
+              "circle-move-anim2 4s linear infinite"
+            );
+            item3.changeAnimation(
+              item3Element,
+              "circle-move-anim3 4s linear infinite"
+            );
+            item4.changeAnimation(
+              item4Element,
+              "circle-move-anim4 4s linear infinite"
+            );
+            item5.changeAnimation(
+              item5Element,
+              "circle-move-anim5 4s linear infinite"
+            );
+            item6.changeAnimation(
+              item6Element,
+              "circle-move-anim6 4s linear infinite"
+            );
 
             // ボスの行動パターンを設定
             beforeBossActionPattern = bossActionPattern;

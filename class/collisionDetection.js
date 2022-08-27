@@ -23,25 +23,23 @@ export class CollisionDetection {
     return this.#radius;
   }
 
-  setCenterX(x) {
-    this.#centerX = x;
-  }
-  setCenterY(y) {
-    this.#centerY = y;
+  calcCenter(coodinate) {
+    this.#centerX = coodinate.left + (coodinate.right - coodinate.left) / 2;
+    this.#centerY = coodinate.top + (coodinate.bottom - coodinate.top) / 2;
   }
 
-  // objectにはツインビーか弾が入る
-  isHit(object, enemy) {
-    const distanceBetweenCenters = this.calcDistance(object, enemy);
+  // 対象同士があたったかどうかをチェックする。
+  // 他エンティティを引数として使っているためgetterを使わざるを得なくなっている
+  isHit(object) {
+    const distanceBetweenCenters = this.calcDistance(object);
     // あたっている場合、中心同士の距離よりも半径の和の方が大きくなる
-    return distanceBetweenCenters < object.getRadius() + enemy.getRadius();
+    return distanceBetweenCenters < this.#radius + object.getRadius();
   }
 
-  // objectにはツインビーか弾が入る
-  calcDistance(object, enemy) {
+  calcDistance(object) {
     return Math.sqrt(
-      Math.pow(object.getCenterX() - enemy.getCenterX(), 2) +
-        Math.pow(object.getCenterY() - enemy.getCenterY(), 2)
+      Math.pow(this.#centerX - object.getCenterX(), 2) +
+        Math.pow(this.#centerY - object.getCenterY(), 2)
     );
   }
 }

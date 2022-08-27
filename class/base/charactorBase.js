@@ -25,43 +25,18 @@ export class CharactorBase {
     this._leftMargin = 0;
     this._rightMargin = 0;
   }
-
-  getPositionX() {
-    return this._positionX;
-  }
-  getPositionY() {
-    return this._positionY;
-  }
   getDirectionX() {
     return this._directionX;
   }
   getDirectionY() {
     return this._directionY;
   }
-  getMoveSpeed() {
-    return this._moveSpeed;
-  }
-  getHealth() {
-    return this._health;
-  }
 
-  setPositionX(x) {
-    this._positionX = x;
-  }
-  setPositionY(y) {
-    this._positionY = y;
-  }
   setDirectionX(x) {
     this._directionX = x;
   }
   setDirectionY(y) {
     this._directionY = y;
-  }
-  setMoveSpeed(s) {
-    this._moveSpeed = s;
-  }
-  setHealth(h) {
-    this._health = h;
   }
 
   // 以下リファクタリング中
@@ -108,5 +83,38 @@ export class CharactorBase {
       return false;
 
     return true;
+  }
+
+  isDead(element) {
+    if (this._health <= 0) {
+      Object.assign(element.style, {
+        display: "none",
+      });
+    }
+  }
+
+  // getterありきの処理
+  takeDamage(damage) {
+    this._health = this._health - damage;
+  }
+
+  move(element) {
+    this._positionX = this._positionX + this._directionX * this._moveSpeed;
+    this._positionY = this._positionY + this._directionY * this._moveSpeed;
+    Object.assign(element.style, {
+      left: `${this._positionX}px`,
+      top: `${this._positionY}px`,
+    });
+  }
+
+  changeAnimation(element, animation) {
+    Object.assign(element.style, {
+      animation: animation,
+    });
+  }
+
+  reverseDierction() {
+    this._directionX = -this._directionX;
+    this._directionY = -this._directionY;
   }
 }
