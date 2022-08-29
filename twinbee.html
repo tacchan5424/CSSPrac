@@ -34,6 +34,7 @@
       import { Bullet } from "./class/bullet.js";
       import { CollisionDetection } from "./class/collisionDetection.js";
       import { Enemy } from "./class/enemy.js";
+      import { flash } from "./js/animation.js";
 
       // ### 変数定義 ###
       const charElement = document.getElementsByClassName("total")[0];
@@ -54,19 +55,51 @@
       let beforeBossActionPattern = 0;
       // ボスが移動中かどうか判定
       let isBossMoving = false;
+      // 当たり判定ディレイ
+      const delay = 500;
+      // フラッシュアニメーション中かどうか判断するようの要素
+      let twinbeeFlushElement = charElement.animate(
+        flash.process,
+        flash.setting
+      );
+      let bossFlushElement = bossElement.animate(flash.process, flash.setting);
+      let item1FlushElement = item1Element.animate(
+        flash.process,
+        flash.setting
+      );
+      let item2FlushElement = item2Element.animate(
+        flash.process,
+        flash.setting
+      );
+      let item3FlushElement = item3Element.animate(
+        flash.process,
+        flash.setting
+      );
+      let item4FlushElement = item4Element.animate(
+        flash.process,
+        flash.setting
+      );
+      let item5FlushElement = item5Element.animate(
+        flash.process,
+        flash.setting
+      );
+      let item6FlushElement = item6Element.animate(
+        flash.process,
+        flash.setting
+      );
 
       // ### インスタンス生成 ###
       // 各キャラクターインスタンス
       const twinbee = new Twinbee();
       const key = new Key();
       const bullet = new Bullet();
-      const boss = new Enemy(40, 30, 1);
-      const item1 = new Enemy(20, 0, 1);
-      const item2 = new Enemy(20, 0, 1);
-      const item3 = new Enemy(20, 0, 1);
-      const item4 = new Enemy(20, 0, 1);
-      const item5 = new Enemy(20, 0, 1);
-      const item6 = new Enemy(20, 0, 1);
+      const boss = new Enemy(20, 30, 1);
+      const item1 = new Enemy(10, 0, 1);
+      const item2 = new Enemy(10, 0, 1);
+      const item3 = new Enemy(10, 0, 1);
+      const item4 = new Enemy(10, 0, 1);
+      const item5 = new Enemy(10, 0, 1);
+      const item6 = new Enemy(10, 0, 1);
       // 当たり判定用インスタンス
       const collisionBullet = new CollisionDetection(
         bulletElement.clientWidth / 2
@@ -198,70 +231,133 @@
         // 弾がボスに当たった時の処理
         if (collisionBoss.isHit(collisionBullet)) {
           bullet.initPosition();
-          boss.takeDamage(bullet.getDamage());
-          boss.isDead(bossElement);
+          if (bossFlushElement.currentTime >= delay) {
+            bossElement.animate(flash.process, flash.setting);
+            bossFlushElement.currentTime = 0;
+            boss.takeDamage(bullet.getDamage());
+            boss.isDead(bossElement);
+          }
         }
 
-        // 弾がボスの周りの玉に当たった時の処理
+        // 弾がボAnimationスの周りの玉に当たった時の処理
         if (collisionItem1.isHit(collisionBullet)) {
           bullet.initPosition();
-          item1.takeDamage(bullet.getDamage());
-          item1.isDead(item1Element);
+          if (item1FlushElement.currentTime >= delay) {
+            item1Element.animate(flash.process, flash.setting);
+            item1FlushElement.currentTime = 0;
+            item1.takeDamage(bullet.getDamage());
+            item1.isDead(item1Element);
+          }
         }
         if (collisionItem2.isHit(collisionBullet)) {
           bullet.initPosition();
-          item2.takeDamage(bullet.getDamage());
-          item2.isDead(item2Element);
+          if (item2FlushElement.currentTime >= delay) {
+            item2Element.animate(flash.process, flash.setting);
+            item2FlushElement.currentTime = 0;
+            item2.takeDamage(bullet.getDamage());
+            item2.isDead(item2Element);
+          }
         }
         if (collisionItem3.isHit(collisionBullet)) {
           bullet.initPosition();
-          item2.takeDamage(bullet.getDamage());
-          item3.isDead(item3Element);
+          if (item3FlushElement.currentTime >= delay) {
+            item3Element.animate(flash.process, flash.setting);
+            item3FlushElement.currentTime = 0;
+            item3.takeDamage(bullet.getDamage());
+            item3.isDead(item3Element);
+          }
         }
         if (collisionItem4.isHit(collisionBullet)) {
           bullet.initPosition();
-          item4.takeDamage(bullet.getDamage());
-          item4.isDead(item4Element);
+          if (item4FlushElement.currentTime >= delay) {
+            item4Element.animate(flash.process, flash.setting);
+            item4FlushElement.currentTime = 0;
+            item4.takeDamage(bullet.getDamage());
+            item4.isDead(item4Element);
+          }
         }
         if (collisionItem5.isHit(collisionBullet)) {
           bullet.initPosition();
-          item4.takeDamage(bullet.getDamage());
-          item5.isDead(item5Element);
+          if (item5FlushElement.currentTime >= delay) {
+            item5Element.animate(flash.process, flash.setting);
+            item5FlushElement.currentTime = 0;
+            item5.takeDamage(bullet.getDamage());
+            item5.isDead(item5Element);
+          }
         }
         if (collisionItem6.isHit(collisionBullet)) {
           bullet.initPosition();
-          item6.takeDamage(bullet.getDamage());
-          item6.isDead(item6Element);
+          if (item6FlushElement.currentTime >= delay) {
+            item6Element.animate(flash.process, flash.setting);
+            item6FlushElement.currentTime = 0;
+            item6.takeDamage(bullet.getDamage());
+            item6.isDead(item6Element);
+          }
         }
 
         // ボスがツインビーに当たった時の処理
-        if (collisionTwinbee.isHit(collisionBoss)) {
+        if (
+          collisionTwinbee.isHit(collisionBoss) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(boss.getDamage());
           twinbee.isDead(charElement);
         }
 
         // ボスの周りの玉がツインビーに当たった時の処理
-        if (collisionItem1.isHit(collisionTwinbee)) {
+        if (
+          collisionItem1.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item1.getDamage());
           twinbee.isDead(charElement);
         }
-        if (collisionItem2.isHit(collisionTwinbee)) {
+        if (
+          collisionItem2.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item2.getDamage());
           twinbee.isDead(charElement);
         }
-        if (collisionItem3.isHit(collisionTwinbee)) {
+        if (
+          collisionItem3.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item3.getDamage());
           twinbee.isDead(charElement);
         }
-        if (collisionItem4.isHit(collisionTwinbee)) {
+        if (
+          collisionItem4.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item4.getDamage());
           twinbee.isDead(charElement);
         }
-        if (collisionItem5.isHit(collisionTwinbee)) {
+        if (
+          collisionItem5.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item5.getDamage());
           twinbee.isDead(charElement);
         }
-        if (collisionItem6.isHit(collisionTwinbee)) {
+        if (
+          collisionItem6.isHit(collisionTwinbee) &&
+          twinbeeFlushElement.currentTime >= delay
+        ) {
+          charElement.animate(flash.process, flash.setting);
+          twinbeeFlushElement.currentTime = 0;
           twinbee.takeDamage(item6.getDamage());
           twinbee.isDead(charElement);
         }
@@ -275,16 +371,13 @@
           switch (bossActionPattern) {
             case 0:
               // アニメーションで実装
-              boss.move(bossElement);
+              boss.changeAnimation(bossElement, "bossMovePattern0 1s linear");
               break;
             case 1:
-              // 下方向への直線移動
-              boss.setDirectionX(0);
-              boss.setDirectionY(1);
-              // マージンを取る必要がある
-              boss.move(bossElement);
+              boss.changeAnimation(bossElement, "bossMovePattern1 1s linear");
               break;
             case 2:
+              boss.changeAnimation(bossElement, "bossMovePattern2 3s linear");
               item1.changeAnimation(
                 item1Element,
                 "circle-move-spread-anim1 3s linear infinite"
@@ -321,9 +414,7 @@
         if (!isBossMoving) {
           // 3秒ごとに実行
           setInterval(() => {
-            // 元の位置に戻るために方向を反転させる
-            boss.reverseDierction();
-
+            boss.changeAnimation(bossElement, "");
             item1.changeAnimation(
               item1Element,
               "circle-move-anim1 4s linear infinite"
@@ -350,12 +441,8 @@
             );
 
             // ボスの行動パターンを設定
-            beforeBossActionPattern = bossActionPattern;
-            bossActionPattern = 0;
-            if (beforeBossActionPattern === 0)
-              bossActionPattern = Math.ceil(Math.random() * 2);
+            bossActionPattern = Math.ceil(Math.random() * 3) - 1;
             isBossMoving = true;
-            console.log(bossActionPattern);
           }, 3000);
         }
       });

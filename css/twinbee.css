@@ -299,13 +299,44 @@ html {
   }
 }
 
-@keyframes flash {
-  0%,
-  100% {
-    opacity: 1;
+@keyframes bossMovePattern0 {
+  0% {
+    transform: translateY(0px);
   }
-
   50% {
-    opacity: 0;
+    transform: translateY(600px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes bossMovePattern1 {
+  0% {
+    transform: translateY(0px);
+  }
+  25% {
+    transform: translateY(300px) translateX(-250px);
+  }
+  50% {
+    transform: translateY(600px);
+  }
+  75% {
+    transform: translateY(300px) translateX(250px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes bossMovePattern2 {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(300px);
+  }
+  100% {
+    transform: translateY(0px);
   }
 }
